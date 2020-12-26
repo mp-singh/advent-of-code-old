@@ -1,0 +1,6 @@
+**/target
+**/input.txt
+**/cargo.lock
+**/sample.rs
+.idea/
+.DS_Store
