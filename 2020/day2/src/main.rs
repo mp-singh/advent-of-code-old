@@ -1,33 +1,54 @@
+use anyhow::Result;
 use regex::Regex;
-use std::fs;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
+#[macro_use]
+extern crate lazy_static;
+
+lazy_static! {
+    static ref RE: Regex = Regex::new("([0-9]+)-([0-9]+) ([a-z]): ([a-z]*)").unwrap();
+}
 fn main() {
-    println!("Total passwords valid at sled: {:?}", day2a());
-    println!("Total passwords valid at toboggan: {:?}", day2b());
+    let password_policies = read_input().unwrap();
+    println!(
+        "Total passwords valid at sled: {:?}",
+        day2a(&password_policies)
+    );
+    println!(
+        "Total passwords valid at toboggan: {:?}",
+        day2b(&password_policies)
+    );
 }
 
-pub fn day2a() -> i32 {
-    read_input()
-        .iter()
-        .fold(0, |total, p| match p.is_valid_at_sled() {
-            true => total + 1,
-            false => total,
-        })
+pub fn day2a(password_policies: &[Option<PasswordPolicy>]) -> i32 {
+    password_policies.iter().fold(0, |total, p| match p {
+        Some(x) => {
+            if x.is_valid_at_sled() {
+                total + 1
+            } else {
+                total
+            }
+        }
+        None => total,
+    })
 }
 
-pub fn day2b() -> i32 {
-    read_input()
-        .iter()
-        .fold(0, |total, p| match p.is_valid_at_toboggan() {
-            true => total + 1,
-            false => total,
-        })
+pub fn day2b(password_policies: &[Option<PasswordPolicy>]) -> i32 {
+    password_policies.iter().fold(0, |total, p| match p {
+        Some(x) => {
+            if x.is_valid_at_toboggan() {
+                total + 1
+            } else {
+                total
+            }
+        }
+        None => total,
+    })
 }
-
-const REGEX: &str = "([0-9]+)-([0-9]+) ([a-z]): ([a-z]*)";
 
 #[derive(Debug)]
-struct PasswordPolicy {
+pub struct PasswordPolicy {
     min: usize,
     max: usize,
     letter: String,
@@ -35,8 +56,8 @@ struct PasswordPolicy {
 }
 
 impl PasswordPolicy {
-    pub fn new(s: &str, re: &Regex) -> Option<Self> {
-        let captures = re.captures(s)?;
+    pub fn new(s: String) -> Option<Self> {
+        let captures = RE.captures(&s)?;
         Some(Self {
             min: captures
                 .get(1)
@@ -57,18 +78,16 @@ impl PasswordPolicy {
             return false;
         }
 
-        let letter = self.letter.as_bytes()[0] as char;
+        let letter = self.letter.chars().nth(0).unwrap();
         let chars = self.password.chars().collect::<Vec<char>>();
 
-        (&chars[self.min - 1] == &letter) ^ (&chars[self.max - 1] == &letter)
+        (chars[self.min - 1] == letter) ^ (chars[self.max - 1] == letter)
     }
 }
 
-fn read_input() -> Vec<PasswordPolicy> {
-    let values = fs::read_to_string("input.txt").expect("Unable to read file");
-    let re = Regex::new(REGEX).unwrap();
-    values
-        .split("\n")
-        .filter_map(|s| PasswordPolicy::new(s, &re))
+fn read_input() -> Result<Vec<Option<PasswordPolicy>>> {
+    BufReader::new(File::open("input.txt").unwrap())
+        .lines()
+        .map(|line| line.map_err(Into::into).map(PasswordPolicy::new))
         .collect()
 }
