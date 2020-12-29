@@ -78,7 +78,7 @@ impl PasswordPolicy {
             return false;
         }
 
-        let letter = self.letter.chars().nth(0).unwrap();
+        let letter = self.letter.chars().next().unwrap();
         let chars = self.password.chars().collect::<Vec<char>>();
 
         (chars[self.min - 1] == letter) ^ (chars[self.max - 1] == letter)

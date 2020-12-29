@@ -18,12 +18,7 @@ fn main() {
 }
 
 pub fn day5a(seats: &[Seat]) -> i32 {
-    match seats.iter().max_by_key(|&seat| seat.id) {
-        Some(max) => max.id,
-        None => {
-            panic!("unable to find max :(");
-        }
-    }
+    seats.iter().max_by_key(|&seat| seat.id).expect("unable to find max :(").id
 }
 
 pub fn day5b(seats: &[Seat]) -> i32 {
@@ -42,15 +37,9 @@ impl Seat {
         let seat = Seat::default();
         let captures = SEAT_REGEX.captures(&s).unwrap();
 
-        let row = seat.find_row(match captures.get(1) {
-            Some(x) => x.as_str(),
-            None => panic!("invalid row entry"),
-        });
+        let row = seat.find_row(captures.get(1).expect("invalid row entry").as_str());
 
-        let column = seat.find_col(match captures.get(2) {
-            Some(y) => y.as_str(),
-            None => panic!("invalid column entry"),
-        });
+        let column = seat.find_col(captures.get(2).expect("invalid column entry").as_str());
 
         let id = row * 8 + column;
 
@@ -70,7 +59,7 @@ impl Seat {
                     match c {
                         c if c == bottom => high -= rem,
                         c if c == top => low += rem,
-                        _ => panic!("woops"),
+                        _ => panic!("whoops!"),
                     }
                     (low, high, rem)
                 });
@@ -88,10 +77,8 @@ fn find_my_seat(seats: &[Seat]) -> i32 {
         result.insert(seat.id, true);
     });
 
-    for i in 1..128 * 8 - 1 {
-        // its okay to unwrap here as i'm making sure all values exist above. I still don't like this
-        // and I might need to investigate further for a cleaner way of doing this.
-        if !result[&i] && *result.get(&(i - 1)).unwrap() && *result.get(&(i + 1)).unwrap() {
+    for i in 1..127 * 8 - 1 {
+        if !result[&i] && result[&(i - 1)] && result[&(i + 1)] {
             return i;
         }
     }
