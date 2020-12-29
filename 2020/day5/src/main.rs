@@ -18,7 +18,11 @@ fn main() {
 }
 
 pub fn day5a(seats: &[Seat]) -> i32 {
-    seats.iter().max_by_key(|&seat| seat.id).expect("unable to find max :(").id
+    seats
+        .iter()
+        .max_by_key(|&seat| seat.id)
+        .expect("unable to find max :(")
+        .id
 }
 
 pub fn day5b(seats: &[Seat]) -> i32 {

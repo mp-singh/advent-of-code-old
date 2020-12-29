@@ -33,8 +33,14 @@ pub struct Group {
 impl Group {
     pub fn new(s: &str) -> Self {
         if GROUP_REGEX.is_match(&s.replace('\n', "")) {
-            Group { answers: s.to_string(), all_yes_sum: Group::find_all_yes_sum(s), everyone_yes_sum: Group::find_everyone_yes_sum(s) }
-        } else { panic!("Bad input!") }
+            Group {
+                answers: s.to_string(),
+                all_yes_sum: Group::find_all_yes_sum(s),
+                everyone_yes_sum: Group::find_everyone_yes_sum(s),
+            }
+        } else {
+            panic!("Bad input!")
+        }
     }
 
     fn find_all_yes_sum(s: &str) -> i32 {
@@ -63,4 +69,3 @@ fn read_input() -> Vec<Group> {
         .map(Group::new)
         .collect()
 }
-
