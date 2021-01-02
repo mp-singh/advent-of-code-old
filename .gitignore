@@ -1,5 +1,6 @@
 **/target
 **/input.txt
+**/input_test.txt
 **/cargo.lock
 **/sample.rs
 .idea/
